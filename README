@@ -1,0 +1,16 @@
+XML-RPC Client for node.js
+
+This module is based (and depends) on the libxml.js library that you 
+can find here http://libxmljs.squishtech.com/
+
+Once you have compiled it, move the libxmljs.node where the xmlrpc-c.js module is
+
+This library is still too young and not complete and should NOT be used in production. 
+
+Here are (some of) the limitations:
+
+- Only "string" and "integer" are supported as input parameter type
+- Data conformance checks are VERY lousy!
+- "double" is not yet supported as output parameter
+- no tests at all
+
