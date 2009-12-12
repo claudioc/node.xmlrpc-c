@@ -33,8 +33,6 @@ Client.prototype.call = function(method, params) {
 
   params = params || [];
   
-  sys.debug("Connecting to " + this.hostname + ":" + this.port + this.path);
-  
   var client = http.createClient(this.port, this.hostname);
 
   var headers = {
@@ -74,8 +72,6 @@ Client.prototype.call = function(method, params) {
     }
   });
   
-  sys.puts(doc.toString());
-  
   var req = client.post(this.path, headers);
 
   req.sendBody(doc.toString(), 'utf8');
@@ -95,8 +91,6 @@ Client.prototype.call = function(method, params) {
     });
 
     res.addListener("complete", function() {
-      sys.puts(payload);
-      
       // be tolerant of extra whitespace in response body
       payload = payload.replace(/^\s/, '').replace(/\s$/, '');
       // be tolerant of junk after methodResponse (e.g. javascript ads automatically inserted by free hosts)
@@ -118,13 +112,14 @@ Client.prototype.call = function(method, params) {
         return me.emitError(method, "XMLRPC error: " + fault.faultString + " (" + fault.faultCode + ")");
       }
 
-      var values = response.find('params/param/value');
       
-      for (var i=0; i < values.length; i++) {
-        sys.puts(sys.inspect(tools.parseValue(values[i])));
-      }
+      var values = response.get('params/param/value');
+      //var values = response.find('params/param/value');
+      //for (var i=0; i < values.length; i++) {
+      //  sys.puts(sys.inspect(tools.parseValue(values[i])));
+      //}
       
-      me.emitSuccess(method);
+      me.emitSuccess(method, tools.parseValue(values));
     });
       
   });

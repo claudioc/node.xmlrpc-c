@@ -2,12 +2,11 @@ var sys = require('sys');
 
 var xmlrpcClient = require('./xmlrpc-c');
 
-//sys.print(doc.toString());
-
 var client = xmlrpcClient.create('radioradicale.local', 80, '/scripts/radicapi/radicapi.php');
 
 client.addCallback(function(method, response) {
   sys.puts(method);
+  sys.puts(sys.inspect(response));
 });
 
 client.addErrback(function(method, error) {
