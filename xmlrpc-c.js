@@ -99,25 +99,22 @@ Client.prototype.call = function(method, params, callback) {
 
   });
 
-  var req = client.post(this.path, headers);
+  var req = client.request('POST', this.path, headers);
 
-  req.sendBody(doc.toString(), 'utf8');
+  req.write(doc.toString(), 'utf8');
 
   var me = this;
 
-  req.finish(function(res) {
+  req.addListener("response", function(res) {
     var payload = "";
-    res.setBodyEncoding("utf8");
+    res.setEncoding("utf8");
 
     if (res.statusCode != 200) {
-      return me.emitError(method, "Status is not 200: " + res.statusCode);
+      return me.emit("error", method, "Status is not 200: " + res.statusCode);
     }
 
-    res.addListener("body", function (chunk) {
-      payload += chunk;
-    });
 
-    res.addListener("complete", function() {
+    res.addListener("data", function(payload) {
       payload = H.trim(payload);
 
       // be tolerant of junk after methodResponse (e.g. javascript ads automatically inserted by free hosts)
@@ -148,6 +145,7 @@ Client.prototype.call = function(method, params, callback) {
     });
       
   });
+  req.end();
 
   return this;
 }
