@@ -22,16 +22,22 @@ var headers = {
   "Accept-Charset": "UTF8"
 }
 
-var Client = function(port, hostname, path) {
-  this.hostname = hostname || 'localhost';
-  this.port = port || 80;
+var Client = function(httpclient, path) {
+  this.httpclient = httpclient;
   this.path = path;
+  this.headers = headers;
+  this.headers.host = httpclient.host;
 };
 
 Client.prototype = new process.EventEmitter();
 
 exports.createClient = function(port, hostname, path) {
-  var client = new Client(port, hostname, path);
+  var client = new Client(http.createClient(port, hostname), path);
+  return client;
+}
+
+exports.createHttpClient = function(client, path) {
+  var client = new Client(client, path);
   return client;
 }
 
@@ -39,9 +45,7 @@ Client.prototype.call = function(method, params, callback) {
 
   params = params || [];
   
-  var client = http.createClient(this.port, this.hostname);
-
-  headers.host = this.hostname;
+  var client = this.httpclient;
   
   var doc = new libxml.Document()
   var body = doc.node('methodCall');
