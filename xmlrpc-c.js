@@ -129,7 +129,7 @@ Client.prototype.call = function(method, params, callback) {
       
       var doc, response, fault;
       try {
-        doc = libxml.parseString(payload);
+        doc = libxml.parseXmlString(payload);
         response = doc.root();
       } catch(e) {
         return me.emit('error', method, "Response seems not a regular XMLRPC one");
@@ -264,7 +264,7 @@ var H = {
   },
 
   getFirstChild: function(element) {
-    var children = element.children();
+    var children = element.childNodes();
     for (var i=0; i < children.length; i++) {
       // FIXME is this the right way to test for a TEXT node type?
       if (children[i].name() !='text') {
