@@ -15,7 +15,7 @@ var libxml = require('./libxmljs');
 
 var headers = {
   "User-Agent": "NodeJS XML-RPC Client",
-  "Content-Type": "application/x-www-form-urlencoded'",
+  "Content-Type": "text/xml",
   "Connection": "close",
   "Keep-Alive": "",
   "Accept": "text/xml",
