@@ -103,9 +103,10 @@ Client.prototype.call = function(method, params, callback) {
 
   });
 
+  body = doc.toString();
+  headers['Content-Length'] = body.length;
   var req = client.request('POST', this.path, headers);
-
-  req.write(doc.toString(), 'utf8');
+  req.write(body, 'utf8');
 
   var me = this;
 
