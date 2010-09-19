@@ -20,6 +20,8 @@ var headers = {
   "Accept-Charset": "UTF8"
 }
 
+var cookies;
+
 var Client = function(httpclient, path) {
   this.httpclient = httpclient;
   this.path = path;
@@ -103,6 +105,15 @@ Client.prototype.call = function(method, params, callback) {
 
   body = doc.toString();
   headers['Content-Length'] = body.length;
+  if (cookies) {
+    var cookiehdr = '';
+    for (var key in cookies) {
+      cookiehdr += key + '=' + cookies[key] + '; ';
+    }
+    if (cookiehdr.length)
+      cookiehdr = cookiehdr.substring(0, cookiehdr.length - 2);
+    headers['Cookie'] = cookiehdr;
+  }
   var req = client.request('POST', this.path, headers);
   req.write(body, 'utf8');
 
@@ -116,6 +127,17 @@ Client.prototype.call = function(method, params, callback) {
       return me.emit("error", method, "Status is not 200: " + res.statusCode);
     }
 
+    var set_cookie = res.headers['set-cookie'];
+    if (set_cookie) {
+      for (var i in set_cookie) {
+        cookie = set_cookie[i];
+        cookie = cookie.split(';')[0];
+        cookie = cookie.split('=');
+        if (!cookies)
+          cookies = [];
+        cookies[cookie[0]] = cookie[1];
+      }
+    }
 
     res.addListener("data", function(payload) {
       payload = H.trim(payload);
