@@ -291,8 +291,7 @@ var H = {
   getFirstChild: function(element) {
     var children = element.childNodes();
     for (var i=0; i < children.length; i++) {
-      // FIXME is this the right way to test for a TEXT node type?
-      if (children[i].name() !='text') {
+      if (children[i].type() != 'text') {
         return children[i];
       }
     }

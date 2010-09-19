@@ -13,7 +13,7 @@ See test.js to understand how to use it
 Links:
 
 This project on github: http://github.com/caludio/node.xmlrpc-c
-libmxl.js: http://libxmljs.squishtech.com/
+libxmljs: http://github.com/polotek/libxmljs/
 node.js: http://nodejs.org
 XML-RPC for JS (I used some lines of code from that): http://phpxmlrpc.sourceforge.net/jsxmlrpc/
 my blog: http://claudio.cicali.name
