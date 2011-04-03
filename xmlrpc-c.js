@@ -8,10 +8,9 @@
  *
  */
 
-//var sys = require('sys');
 var http = require('http');
-
-var libxml = require('./libxmljs');
+var https = require('https');
+var libxml = require('libxmljs');
 
 var headers = {
   "User-Agent": "NodeJS XML-RPC Client",
@@ -22,40 +21,35 @@ var headers = {
 
 var cookies;
 
-var Client = function(httpclient, path) {
-  this.httpclient = httpclient;
-  this.path = path;
-  this.headers = headers;
-  this.headers.host = httpclient.host;
+var Client = function(port, host, path, shouldhttps) {  
+  this.opts = {
+    host: host,
+    port: port,
+    path: path,
+    method: 'POST',
+    headers: headers
+  };
+  
+  this.request = shouldhttps ? https.request : http.request;
 };
 
 Client.prototype = new process.EventEmitter();
 
-exports.createClient = function(port, hostname, path) {
-  var client = new Client(http.createClient(port, hostname), path);
-  return client;
-}
-
-exports.createHttpClient = function(client, path) {
-  var client = new Client(client, path);
+exports.createClient = function(port, host, path, shouldhttps) {
+  var client = new Client(port, host, path, shouldhttps);
   return client;
 }
 
 Client.prototype.call = function(method, params, callback) {
-
   params = params || [];
   
-  var client = this.httpclient;
-  
-  var doc = new libxml.Document()
+  var doc = new libxml.Document();
   var body = doc.node('methodCall');
   body.node('methodName', method);
   body.node('params', function(p) {
-    
     for (var i=0; i < params.length; i++) {
       _serialize(params[i], p.node('param'));
     }
-
     function _serialize(param, parent) {
 
       var value = parent.node('value');
@@ -104,7 +98,8 @@ Client.prototype.call = function(method, params, callback) {
   });
 
   body = doc.toString();
-  headers['Content-Length'] = body.length;
+  this.opts.headers['Content-Length'] = body.length;
+  
   if (cookies) {
     var cookiehdr = '';
     for (var key in cookies) {
@@ -112,14 +107,12 @@ Client.prototype.call = function(method, params, callback) {
     }
     if (cookiehdr.length)
       cookiehdr = cookiehdr.substring(0, cookiehdr.length - 2);
-    headers['Cookie'] = cookiehdr;
+    this.opts.headers['Cookie'] = cookiehdr;
   }
-  var req = client.request('POST', this.path, headers);
-  req.write(body, 'utf8');
-
+  
   var me = this;
-
-  req.addListener("response", function(res) {
+  
+  var req = this.request(this.opts, function(res) {
     var payload = "";
     res.setEncoding("utf8");
 
@@ -170,6 +163,8 @@ Client.prototype.call = function(method, params, callback) {
     });
       
   });
+  
+  req.write(body);
   req.end();
 
   return this;
@@ -307,5 +302,3 @@ var H = {
 	},
   
 }
-
-
